@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mendix Learning Path - 快速入门看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: #f1f5f9; }
+        .week-section { margin-bottom: 3.5rem; }
+        .course-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 5px solid transparent; }
+        .course-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1); }
+        .course-card.completed { border-left-color: #10b981; background-color: #f0fdf4; }
+        .course-card.completed .course-title { text-decoration: line-through; color: #94a3b8; }
+        .checkbox-custom { width: 24px; height: 24px; border-radius: 8px; cursor: pointer; border: 2px solid #cbd5e1; flex-shrink: 0; transition: all 0.2s; }
+        .checkbox-custom:hover { border-color: #3b82f6; }
+        .checkbox-custom:checked { background-color: #10b981; border-color: #10b981; }
+        .tag-pill { font-size: 11px; font-weight: 800; padding: 2px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.02em; }
+        .lang-active { background-color: #1e293b; color: white; }
+    </style>
+</head>
+<body class="p-6 md:p-16 text-slate-800">
+
+    <div class="max-w-6xl mx-auto" id="main-content">
+        <!-- Header -->
+        <header class="mb-16">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-600 text-white text-[10px] font-black px-2.5 py-1 rounded-md tracking-widest uppercase shadow-lg shadow-blue-200">Official Path</span>
+                        <div class="flex bg-white rounded-lg border border-slate-200 p-0.5 ml-4">
+                            <button onclick="setLang('zh')" id="lang-zh" class="px-3 py-1 text-[10px] font-black rounded-md transition-all lang-active">中</button>
+                            <button onclick="setLang('en')" id="lang-en" class="px-3 py-1 text-[10px] font-black rounded-md transition-all text-slate-400">EN</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 id="ui-title" class="text-5xl font-black text-slate-900 tracking-tighter mb-2">Mendix 官方建议学习路径</h1>
+                        <p id="ui-subtitle" class="text-slate-500 text-xl font-medium tracking-tight italic">中国用户建议优先观看 B 站视频，随后进阶官方教程</p>
+                    </div>
+                    <div class="flex gap-6 text-sm font-bold text-slate-400">
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> <span id="ui-sync">官方认证同步</span></span>
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> <span id="ui-fast">四周极速通关</span></span>
+                    </div>
+                </div>
+                
+                <!-- Progress Card -->
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-blue-200/40 border border-slate-100 min-w-[340px]">
+                    <div class="flex justify-between mb-4 items-center px-1">
+                        <span id="ui-progress-label" class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">学习冲刺进度</span>
+                        <span id="progress-text" class="text-3xl font-black text-blue-600">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-4 mb-4 overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-blue-600 via-blue-400 to-emerald-500 h-4 rounded-full transition-all duration-1000 w-0"></div>
+                    </div>
+                    <p id="ui-storage-hint" class="text-[11px] text-slate-400 text-center font-medium italic italic-style text-nowrap">进度已安全保存至当前浏览器缓存</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Role Filter Bar -->
+        <div class="flex flex-wrap gap-3 mb-14 items-center bg-white/60 backdrop-blur-xl p-2.5 rounded-2xl border border-slate-200 w-fit sticky top-6 z-50 shadow-sm">
+            <span id="ui-filter-label" class="text-[10px] font-black text-slate-400 px-4 uppercase tracking-[0.2em]">Filter By Role</span>
+            <button onclick="filterRole('all')" class="filter-btn active px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold shadow-xl shadow-slate-300 transition-all">全部</button>
+            <button onclick="filterRole('全体成员')" class="filter-btn px-6 py-2.5 rounded-xl text-slate-600 text-sm font-bold hover:bg-white hover:shadow-sm transition-all">通用入门</button>
+            <button onclick="filterRole('产品经理')" class="filter-btn px-6 py-2.5 rounded-xl text-slate-600 text-sm font-bold hover:bg-white hover:shadow-sm transition-all">产品经理</button>
+            <button onclick="filterRole('开发人员')" class="filter-btn px-6 py-2.5 rounded-xl text-slate-600 text-sm font-bold hover:bg-white hover:shadow-sm transition-all">开发人员</button>
+            <button onclick="filterRole('平台主管')" class="filter-btn px-6 py-2.5 rounded-xl text-slate-600 text-sm font-bold hover:bg-white hover:shadow-sm transition-all">平台主管</button>
+        </div>
+
+        <!-- Weekly Timeline Container -->
+        <div id="timeline" class="space-y-20 relative">
+            <div class="absolute left-8 top-12 bottom-0 w-[2px] bg-gradient-to-b from-slate-200 via-slate-200 to-transparent -z-10 hidden md:block"></div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-28 pt-12 border-t border-slate-200 flex flex-col items-center gap-6">
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Designed & Maintained By</span>
+                <span class="font-black text-slate-900 text-lg tracking-tight text-nowrap">Mendix Expert Niko</span>
+            </div>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.4em]">Multi-Language Edition v3.3</p>
+        </footer>
+    </div>
+
+    <script>
+        const i18n = {
+            zh: {
+                title: "Mendix 官方建议学习路径",
+                subtitle: "中国用户建议优先观看 B 站视频，随后进阶官方教程",
+                sync: "官方认证同步",
+                fast: "四周极速通关",
+                progressLabel: "学习冲刺进度",
+                storageHint: "进度已安全保存至当前浏览器缓存",
+                filterLabel: "按角色筛选",
+                btnBili: "B站视频教程",
+                btnOfficial: "进入官方课程",
+                phase: "阶段",
+                weekLabel: "周次",
+                roles: { 'all': '全部', '全体成员': '通用入门', '产品经理': '产品经理', '开发人员': '开发人员', '平台主管': '平台主管' }
+            },
+            en: {
+                title: "Mendix Official Learning Path",
+                subtitle: "CN users: Watch Bilibili first, then advance to Official Academy",
+                sync: "Official Certification Sync",
+                fast: "4-Week Sprint Path",
+                progressLabel: "Learning Sprint Progress",
+                storageHint: "Progress saved to browser local storage",
+                filterLabel: "Filter By Role",
+                btnBili: "Bilibili Video",
+                btnOfficial: "Official Path",
+                phase: "Phase",
+                weekLabel: "Week",
+                roles: { 'all': 'All', '全体成员': 'General', '产品经理': 'Product Manager', '开发人员': 'Developer', '平台主管': 'Platform Lead' }
+            }
+        };
+
+        const courses = [
+            { 
+                id: 1, week: 1, role: '全体成员', 
+                name: { zh: 'Mendix 极速通关 (Crash Course)', en: 'Mendix Crash Course' },
+                link: 'https://academy.mendix.com/link/paths/82/Crash-Course', 
+                bilibili: 'https://www.bilibili.com/video/BV1fb4y1B7NR/',
+                time: '12h', 
+                desc: { 
+                    zh: '核心入门课程。建议中国同学先观看 B 站视频掌握建模思维，再通过官方 Academy 补全英文术语感。', 
+                    en: 'Foundational course. Chinese users are recommended to start with Bilibili then move to Academy.' 
+                } 
+            },
+            { 
+                id: 2, week: 1, role: '产品经理', 
+                name: { zh: '用户体验基础 (UX Fundamentals)', en: 'UX Fundamentals' },
+                link: 'https://academy.mendix.com/link/paths/125/Define-Your-App-Design', time: '1h', 
+                desc: { zh: '学习如何定义 App 的交互原型与业务流。', en: 'Learn to define app interaction prototypes and flows.' } 
+            },
+            { 
+                id: 3, week: 1, role: '产品经理', 
+                name: { zh: 'UI&UX与前端区别', en: 'UX, UI, and Frontend' },
+                link: 'https://academy.mendix.com/link/paths/124/Difference-Between-UX,-UI,-and-Frontend', time: '1h', 
+                desc: { zh: '明确低代码开发中不同角色的职能边界。', en: 'Clarify role boundaries in low-code development.' } 
+            },
+            { 
+                id: 4, week: 1, role: '开发人员', 
+                name: { zh: '数据模型进阶 (Win at Data)', en: 'Win at Working with Data' },
+                link: 'https://academy.mendix.com/link/paths/3/Win-at-Working-with-Data', time: '4h', 
+                desc: { zh: 'Mendix 开发的核心：掌握关联与复杂检索。', en: 'The core of Mendix: mastering associations and retrieval.' } 
+            },
+            { 
+                id: 5, week: 2, role: '产品经理', 
+                name: { zh: '移动端 UX 设计进阶', en: 'Mobile UX Design' },
+                link: 'https://academy.mendix.com/link/paths/143/Create-a-Great-UX-for-Your-Mobile-Apps', time: '4.5h', 
+                desc: { zh: '优化移动端原生与 Web 体验。', en: 'Optimize native and web experiences for mobile.' } 
+            },
+            { 
+                id: 7, week: 2, role: '开发人员', 
+                name: { zh: 'Atlas UI 样式体系', en: 'Styling with Atlas UI' },
+                link: 'https://academy.mendix.com/link/paths/54/Style-your-App-with-Atlas-UI', time: '4h', 
+                desc: { zh: '掌握官方样式类与 Sass 扩展方法。', en: 'Master official style classes and Sass extension.' } 
+            },
+            { 
+                id: 9, week: 3, role: '开发人员', 
+                name: { zh: '高级安全配置 (Security)', en: 'Configure Advanced Security' },
+                link: 'https://academy.mendix.com/link/paths/9/Configure-Advanced-Security', time: '4h', 
+                desc: { zh: '企业级应用关键：实体级与模块级权限。', en: 'Enterprise critical: Entity and module-level permissions.' } 
+            },
+            { 
+                id: 10, week: 3, role: '开发人员', 
+                name: { zh: 'REST API 消费与发布', en: 'Design & Publish REST APIs' },
+                link: 'https://academy.mendix.com/link/paths/133/Design-and-Publish-a-REST-API', time: '3h', 
+                desc: { zh: '实现跨系统数据互联互通。', en: 'Enable cross-system data connectivity.' } 
+            },
+            { 
+                id: 13, week: 4, role: '开发人员', 
+                name: { zh: '性能调优指南', en: 'Optimize Performance' },
+                link: 'https://academy.mendix.com/link/paths/39/Optimize-the-Performance-of-your-Apps', time: '2h', 
+                desc: { zh: '识别并解决页面加载与微流执行瓶颈。', en: 'Identify and resolve page load and microflow bottlenecks.' } 
+            },
+            { 
+                id: 16, week: 4, role: '平台主管', 
+                name: { zh: 'Mendix 战略实施领导力', en: 'Lead Mendix Implementation' },
+                link: 'https://academy.mendix.com/link/paths/153/Lead-Mendix-Implementation-in-Your-Organization', time: '3.5h', 
+                desc: { zh: '面向 CIO/架构师：低代码团队治理。', en: 'For CIO/Architects: Low-code team governance.' } 
+            }
+        ];
+
+        let completedIds = JSON.parse(localStorage.getItem('mendix_local_progress') || '[]');
+        let currLang = localStorage.getItem('mendix_lang') || 'zh';
+        window.currentRole = 'all';
+
+        function setLang(lang) {
+            currLang = lang;
+            localStorage.setItem('mendix_lang', lang);
+            document.getElementById('lang-zh').className = `px-3 py-1 text-[10px] font-black rounded-md transition-all ${lang === 'zh' ? 'lang-active' : 'text-slate-400'}`;
+            document.getElementById('lang-en').className = `px-3 py-1 text-[10px] font-black rounded-md transition-all ${lang === 'en' ? 'lang-active' : 'text-slate-400'}`;
+
+            const t = i18n[lang];
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('ui-subtitle').innerText = t.subtitle;
+            document.getElementById('ui-sync').innerText = t.sync;
+            document.getElementById('ui-fast').innerText = t.fast;
+            document.getElementById('ui-progress-label').innerText = t.progressLabel;
+            document.getElementById('ui-storage-hint').innerText = t.storageHint;
+            document.getElementById('ui-filter-label').innerText = t.filterLabel;
+
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns[0].innerText = t.roles['all'];
+            filterBtns[1].innerText = t.roles['全体成员'];
+            filterBtns[2].innerText = t.roles['产品经理'];
+            filterBtns[3].innerText = t.roles['开发人员'];
+            filterBtns[4].innerText = t.roles['平台主管'];
+
+            renderTimeline(window.currentRole);
+        }
+
+        function renderTimeline(roleFilter = 'all') {
+            const container = document.getElementById('timeline');
+            container.innerHTML = '';
+            const weeks = [1, 2, 3, 4];
+            const t = i18n[currLang];
+            
+            weeks.forEach(wk => {
+                const list = courses.filter(c => c.week === wk && (roleFilter === 'all' || c.role === roleFilter));
+                if (!list.length) return;
+
+                const section = document.createElement('div');
+                section.className = 'week-section';
+                section.innerHTML = `
+                    <div class="flex items-center gap-10 mb-12 relative">
+                        <div class="z-10 bg-slate-900 text-white w-20 h-20 rounded-[2rem] flex flex-col items-center justify-center shadow-2xl ring-[14px] ring-white">
+                            <span class="text-[10px] uppercase font-black opacity-40 leading-none">${t.weekLabel}</span>
+                            <span class="text-3xl font-black leading-none">${wk}</span>
+                        </div>
+                        <h2 class="text-4xl font-black text-slate-800 tracking-tighter italic">${t.phase} 0${wk}</h2>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:ml-32">
+                        ${list.map(c => renderCourseCard(c)).join('')}
+                    </div>`;
+                container.appendChild(section);
+            });
+            updateProgress();
+        }
+
+        function renderCourseCard(c) {
+            const isCompleted = completedIds.includes(c.id);
+            const roleColor = getRoleColor(c.role);
+            const t = i18n[currLang];
+            const extraLink = c.bilibili ? `<a href="${c.bilibili}" target="_blank" class="inline-flex items-center text-xs font-black text-pink-600 hover:text-pink-800 transition-all uppercase tracking-widest group"><svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M17.813 4.653h-.854l1.547-2.321c.137-.206.08-.483-.126-.62s-.483-.08-.62.126l-1.92 2.88H8.16l-1.92-2.88c-.137-.206-.414-.263-.62-.126s-.263.414-.126.62l1.547 2.321h-.854C4.12 4.653 2.507 6.267 2.507 8.24v8.24c0 1.973 1.613 3.587 3.587 3.587h11.72c1.973 0 3.587-1.614 3.587-3.587V8.24c0-1.973-1.614-3.587-3.587-3.587zM6.647 14.12c-.827 0-1.5-.673-1.5-1.5s.673-1.5 1.5-1.5 1.5.673 1.5 1.5-.673 1.5-1.5 1.5zm10.706 0c-.827 0-1.5-.673-1.5-1.5s.673-1.5 1.5-1.5 1.5.673 1.5 1.5-.673 1.5-1.5 1.5z"/></svg>${t.btnBili}</a><div class="h-4 w-px bg-slate-100"></div>` : '';
+
+            return `
+                <div class="course-card bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-start gap-7 ${isCompleted ? 'completed' : ''}">
+                    <input type="checkbox" ${isCompleted ? 'checked' : ''} class="checkbox-custom mt-2" onclick="toggleCourse(${c.id})">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="tag-pill bg-${roleColor}-100 text-${roleColor}-700 font-black">${t.roles[c.role] || c.role}</span>
+                            <span class="text-[11px] font-bold text-slate-300 italic">⏱ ${c.time}</span>
+                        </div>
+                        <h3 class="course-title text-slate-900 text-2xl font-black mb-4 tracking-tight">${c.name[currLang]}</h3>
+                        <p class="text-slate-400 text-sm mb-8 font-medium leading-relaxed">${c.desc[currLang]}</p>
+                        <div class="pt-6 border-t border-slate-50 flex items-center gap-6">
+                            ${extraLink}
+                            <a href="${c.link}" target="_blank" class="inline-flex items-center text-xs font-black text-blue-600 hover:text-blue-800 transition-all uppercase tracking-widest group">${t.btnOfficial}<svg class="w-4 h-4 ml-3 transform group-hover:translate-x-1.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        window.toggleCourse = (id) => {
+            if (completedIds.includes(id)) {
+                completedIds = completedIds.filter(v => v !== id);
+            } else {
+                completedIds.push(id);
+            }
+            localStorage.setItem('mendix_local_progress', JSON.stringify(completedIds));
+            renderTimeline(window.currentRole);
+        };
+
+        function getRoleColor(role) {
+            const colors = { '全体成员': 'slate', '产品经理': 'purple', '开发人员': 'blue', '平台主管': 'orange' };
+            return colors[role] || 'slate';
+        }
+
+        const updateProgress = () => {
+            const percentage = Math.round((completedIds.length / courses.length) * 100);
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('progress-text').innerText = percentage + '%';
+        };
+
+        window.filterRole = (role) => {
+            window.currentRole = role;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.className = 'filter-btn px-6 py-2.5 rounded-xl text-slate-600 text-sm font-bold hover:bg-white hover:shadow-sm transition-all';
+            });
+            event.currentTarget.className = 'filter-btn active px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold shadow-xl shadow-slate-300 transition-all';
+            renderTimeline(role);
+        };
+
+        setLang(currLang);
+    </script>
+</body>
+</html>
